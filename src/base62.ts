@@ -24,6 +24,7 @@ class BASE62{
     }
 
     static decode(str: string): number{
+        // T.C -> O(logn) S.C -> O(1)(excluding output) logn space is used to return result
         if(str.length === 0){
             throw new Error("Cannot decode empty string");
         }
