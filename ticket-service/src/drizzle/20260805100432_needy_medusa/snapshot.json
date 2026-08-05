@@ -1,0 +1,51 @@
+{
+  "version": "6",
+  "dialect": "mysql",
+  "id": "8d68844a-01b4-4b73-8436-81d38a82df01",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "ddl": [
+    {
+      "name": "allocations",
+      "entityType": "tables"
+    },
+    {
+      "type": "int",
+      "notNull": true,
+      "autoIncrement": false,
+      "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "allocations"
+    },
+    {
+      "type": "bigint",
+      "notNull": true,
+      "autoIncrement": false,
+      "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
+      "generated": null,
+      "name": "next_available",
+      "entityType": "columns",
+      "table": "allocations"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "name": "PRIMARY",
+      "table": "allocations",
+      "entityType": "pks"
+    }
+  ],
+  "renames": []
+}
