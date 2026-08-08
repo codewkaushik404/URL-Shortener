@@ -37,10 +37,23 @@ export async function createShortUrl(req: Request, res: Response){
         original_url
     }
 
-    if(!client.isReady){
-        throw new ApiError(503, "Redis client unavailable");
+    if(client.isReady){
+        try{
+            await client.set(`urls:${short_code}`, original_url,{
+                expiration: {
+                    //Set expiration to 1 hour from now
+                    type: "EX",
+                    value: 60*60
+                }
+            });
+        }
+        catch(err){
+            //a durable worker queue that takes short_code and longurl and retries set cache in background
+        }
     }
-    await client.set(`urls:${short_code}`, original_url);
+    else {
+        //a durable worker queue that takes short_code and longurl and retries set cache in background   
+    }
 
     return res.status(201).json(
         new ApiResponse(201, "Short Url created successfully", data)
