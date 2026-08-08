@@ -1,0 +1,49 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "id": "0a8fac03-03c5-4efd-a099-5125237d3f41",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "allocations": {
+      "name": "allocations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "next_available": {
+          "name": "next_available",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "allocations_id": {
+          "name": "allocations_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}

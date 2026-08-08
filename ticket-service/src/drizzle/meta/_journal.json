@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1786187226856,
+      "tag": "0000_lyrical_gorilla_man",
+      "breakpoints": true
+    }
+  ]
+}
