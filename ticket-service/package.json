@@ -17,16 +17,15 @@
   "type": "module",
   "devDependencies": {
     "@types/node": "^26.1.2",
-    "drizzle-kit": "^1.0.0-rc.4",
     "tsx": "^4.23.5",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "drizzle-kit": "^0.31.10"
   },
   "dependencies": {
     "@types/express": "^5.0.6",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
-    "mongoose": "^9.9.1",
     "mysql2": "^3.12.0"
   }
 }
