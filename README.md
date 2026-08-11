@@ -155,20 +155,7 @@ id-allocator
 backend
 ```
 
-## Build and Start
-
-```bash
-docker compose up --build
-```
-
-## Stop Services
-
-```bash
-docker compose down
-```
-
----
-## Health Checks
+### Health Checks
 
 For example:
 
@@ -192,14 +179,6 @@ healthcheck:
     timeout: 5s
     retries: 5
 ```
-
-The ID allocation service exposes:
-
-```http
-GET /health
-```
-
-which can be used by Docker to determine whether the service is ready.
 
 # Project Structure
 
@@ -257,27 +236,16 @@ Install:
 * Docker
 * Docker Compose
 
-###@ Clone
-
 ```bash
 git clone <repository-url>
 cd URL-Shortener
 ```
-
-#### Configure Environment
-Create the required `.env` files.
-
-ID allocation service:
-
-#### Install & Run
 
 ```bash
 cd id-allocation-service
 npm install
 npm run dev
 ```
-
-Backend:
 
 ```bash
 cd backend
