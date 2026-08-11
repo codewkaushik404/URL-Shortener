@@ -12,12 +12,12 @@ import allocations from "./db/schema.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const RANGE_SIZE = 5;
+const RANGE_SIZE = 5n;
 
 app.use(express.json());
 
-app.get("/", function (req: Request, res: Response) {
-  res.send("Server is healthy");
+app.get("/health", function (req: Request, res: Response) {
+  res.status(200).json("Server is healthy");
 });
 
 async function allocateRange(req: Request, res: Response) {
@@ -33,8 +33,8 @@ async function allocateRange(req: Request, res: Response) {
       throw new Error("Row doesn't exist");
     }
 
-    const start = Number(row.next_available);
-    const end = start + RANGE_SIZE - 1;
+    const start = BigInt(row.next_available);
+    const end = start + RANGE_SIZE - 1n;
 
     //update the row to point to next_available range
     await tx
@@ -47,7 +47,10 @@ async function allocateRange(req: Request, res: Response) {
     return { start, end };
   });
 
-  return res.json(ranges);
+  return res.json({
+    start: ranges.start.toString(),
+    end: ranges.end.toString()
+  });
 }
 
 //use post request when u are creating/allocating resources not get or put
