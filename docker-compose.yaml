@@ -1,0 +1,97 @@
+services:
+  mysql-primary:
+    image: "mysql:lts"
+    container_name: "mysql-primary"
+    restart: unless-stopped
+    volumes:
+      - mysql-primary-volume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${WRITE_ROOT_PASSWORD}
+      MYSQL_USER: ${WRITE_USER}
+      MYSQL_PASSWORD: ${WRITE_PASSWORD}
+      MYSQL_DATABASE: ${WRITE_DATABASE}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${WRITE_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: "redis/redis-stack"
+    container_name: "redis"
+    restart: unless-stopped
+    volumes: 
+      - redis-volume:/data
+  
+  mysql-id-allocation:
+    image: "mysql:lts"
+    container_name: "mysql-id-allocation"
+    restart: unless-stopped
+    volumes:
+      - mysql-id-allocation-volume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${TICKET_ROOT_PASSWORD}
+      MYSQL_USER: ${TICKET_USER}
+      MYSQL_PASSWORD: ${TICKET_PASSWORD}
+      MYSQL_DATABASE: ${TICKET_DATABASE} 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${TICKET_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  migration-primary: 
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+    command: npm run db:migrate
+  
+  migration-id-allocation:
+    build: ./id-allocation-service
+    env_file:
+      - ./id-allocation-service/.env
+    depends_on:
+      mysql-id-allocation:
+        condition: service_healthy
+    command: sh -c "npm run db:migrate && npm run seed"
+
+  id-allocator: 
+    build: ./id-allocation-service
+    container_name: "id-allocator"
+    ports: 
+      - "8000:8000"
+    restart: unless-stopped
+    env_file:
+      - ./id-allocation-service/.env
+    depends_on:
+      migration-id-allocation:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: "backend"
+    restart: unless-stopped
+    ports: 
+      - "5000:5000"
+    depends_on:
+      id-allocator:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      migration-primary:
+        condition: service_completed_successfully
+    env_file:
+      - ./backend/.env
+
+volumes:
+  mysql-primary-volume:
+  redis-volume: 
+  mysql-id-allocation-volume:
