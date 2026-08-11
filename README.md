@@ -85,9 +85,9 @@ The ID allocation service is separated from the main backend so that ID generati
 
 The system consists of the following major components:
 
-![alt text](image.png)
---- 
+![system-architecture](architecture.png)
 
+---
 # Services
 
 Technology:
@@ -116,12 +116,9 @@ This reduces:
 * Lock contention
 * Latency during URL creation
 
----
-
-## ID Generation Service
 The system uses numeric IDs internally and converts them into Base62 using a custom BASE 62 class with encode() and decode() static methods.
 
-
+---
 # Data Model
 
 ## URLs
@@ -226,7 +223,7 @@ docker compose down
 ```
 
 ---
-# Health Checks
+## Health Checks
 
 For example:
 
@@ -306,7 +303,7 @@ URL-SHORTENER/
 
 # Installation
 
-## Prerequisites
+### Prerequisites
 
 Install:
 
@@ -315,19 +312,19 @@ Install:
 * Docker
 * Docker Compose
 
-## Clone
+### Clone
 
 ```bash
 git clone <repository-url>
 cd URL-Shortener
 ```
 
-## Configure Environment
+### Configure Environment
 Create the required `.env` files.
 
 ID allocation service:
 
-## Install & Run
+### Install & Run
 
 ```bash
 cd id-allocation-service
