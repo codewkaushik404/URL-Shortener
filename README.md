@@ -31,53 +31,10 @@ The system should:
 	- Optionally, user can set expiration time
 - Redirect to the original URL from short URL.
 
-### ID Allocation
-
-The system should:
-
-1. Maintain a monotonically increasing ID sequence.
-2. Allocate IDs in ranges instead of requesting one ID for every URL.
-3. Allow application servers to consume IDs locally.
-4. Allocate another range when the current range is exhausted.
-5. Prevent multiple allocation requests from modifying the sequence incorrectly(using rangePromise).
-
----
-
-# Non-Functional Requirements
-
-### Scalability
-
-The system should support a large number of URL creation and read requests.
-
-Reads are expected to significantly outnumber writes, therefore the architecture prioritizes efficient reads through Redis caching and database indexing.
-
-### Availability
-
-URL retrieval should remain highly available whenever possible.
-
-Redis provides a fast read path while MySQL remains the persistent source of truth.
-
-### Consistency
-
-URL creation must be durable before the request is considered successful.
-
-The database is treated as the source of truth for URL mappings.
-
-### Performance
-
-Frequently accessed URLs should be served from Redis without requiring a database query.
-
-ID ranges are allocated in batches to reduce database contention and network overhead.
-
-### Durability
-
-URL mappings are persisted in MySQL.
-
-Redis is treated as a cache rather than the permanent source of data.
-
-### Fault Isolation
-
-The ID allocation service is separated from the main backend so that ID generation does not have to be implemented directly inside every application instance.
+## Non-Functional Requirements
+- Scalability - The system should support a large number of URL creation and read requests.
+- Availability - URL retrieval should remain highly available whenever possible.
+- Fault Isolation - The ID allocation service is separated from the main backend so that ID generation does not have to be implemented directly inside every application instance.
 
 ---
 
@@ -88,19 +45,7 @@ The system consists of the following major components:
 ![system-architecture](architecture.png)
 
 ---
-# Services
-
-Technology:
-
-* Node.js
-* TypeScript
-* Express
-* Drizzle ORM
-* MySQL
-* Redis
-* Axios
-
-## ID Allocation Service
+# ID Allocation Service
 
 The ID allocation service is responsible for generating unique numeric IDs.
 Instead of making the backend request a new ID for every URL, the service allocates a range:
@@ -303,7 +248,7 @@ URL-SHORTENER/
 
 # Installation
 
-### Prerequisites
+#### Prerequisites
 
 Install:
 
@@ -312,19 +257,19 @@ Install:
 * Docker
 * Docker Compose
 
-### Clone
+###@ Clone
 
 ```bash
 git clone <repository-url>
 cd URL-Shortener
 ```
 
-### Configure Environment
+#### Configure Environment
 Create the required `.env` files.
 
 ID allocation service:
 
-### Install & Run
+#### Install & Run
 
 ```bash
 cd id-allocation-service
