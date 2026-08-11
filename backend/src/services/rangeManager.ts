@@ -14,11 +14,9 @@ async function initializeRange(){
     const response = await axios.post(ticket_server_url, {
         timeout : 5000
     });
-    console.log(response.data);
+
     ({start, end} = response.data);
     current = start;
-
-    console.log(`start= ${start}\nend= ${end}\ncurrent= ${current}`);
 }
 
 export async function getNextId() {

@@ -1,11 +1,13 @@
 import type { Request, Response } from "express";
 import { getNextId } from "./services/rangeManager.js";
 import BASE62 from "./base62.js";
-import db from "./database/dbConnection.js";
+import {writeDB} from "./database/dbConnection.js";
 import urls from "./database/schema/urlSchema.js";
 import ApiError from "./utils/ApiError.js";
 import ApiResponse from "./utils/ApiResponse.js";
 import client from "./redis/client.js";
+import { and, eq, gte } from "drizzle-orm";
+import setUrlCache from "./helpers/setCache.js";
 
 export async function createShortUrl(req: Request, res: Response){
 
@@ -19,10 +21,10 @@ export async function createShortUrl(req: Request, res: Response){
     expiry.setDate(expiry.getDate() + days);
 
     const id = await getNextId();
-    const short_code = BASE62.encode(BigInt(id));
-
-    await db.insert(urls).values({
-        shortId: short_code,
+    const shortId = BASE62.encode(BigInt(id));
+    
+    await writeDB.insert(urls).values({
+        shortId,
         originalUrl: original_url,
         userId: req.user?.id ?? null,
         expiredAt: expiry
@@ -32,29 +34,12 @@ export async function createShortUrl(req: Request, res: Response){
     //Use req.get("host") when you need the full host with port (example.com:5000); 
     // use req.hostname when you only need the domain (example.com).
     const data = {
-        short_code,
-        short_url: `${req.protocol}://${req.get("host")}/${short_code}`,
+        short_id: shortId,
+        short_url: `${req.protocol}://${req.get("host")}/${shortId}`,
         original_url
     }
 
-    if(client.isReady){
-        try{
-            await client.set(`urls:${short_code}`, original_url,{
-                expiration: {
-                    //Set expiration to 1 hour from now
-                    type: "EX",
-                    value: 60*60
-                }
-            });
-        }
-        catch(err){
-            //a durable worker queue that takes short_code and longurl and retries set cache in background
-        }
-    }
-    else {
-        //a durable worker queue that takes short_code and longurl and retries set cache in background   
-    }
-
+    await setUrlCache(shortId, original_url);
     return res.status(201).json(
         new ApiResponse(201, "Short Url created successfully", data)
     );
@@ -62,5 +47,25 @@ export async function createShortUrl(req: Request, res: Response){
 }
 
 export async function getUrl(req: Request, res:Response){
-    
+    const shortId = req.params.shortId;
+    if(typeof shortId !== "string") throw new ApiError(400, "Invalid shortId received");
+
+    let original_url: string | null = null;
+    if(client.isReady) original_url = await client.get(`urls:${shortId}`);
+    if(!original_url){
+        const [result] = await writeDB.select().from(urls)
+        .where(
+            and(
+                eq(urls.shortId, shortId),
+                gte(urls.expiredAt, new Date())
+            )
+        );
+        //here result returns either object or undefined 
+        if(!result) throw new ApiError(404, "ShortId not found");
+
+        original_url = result.originalUrl!;     
+        await setUrlCache(shortId, original_url, result.expiredAt!);   
+    }
+
+    return res.redirect(302, original_url);
 }

@@ -16,6 +16,7 @@ export default function globalErrorHandler(
     }
 
     console.log({
+        //error: err,
         message: err.message,
         stackTrace: err.stack
     });

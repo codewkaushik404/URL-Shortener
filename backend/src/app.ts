@@ -5,7 +5,7 @@ dotenv.config({
 import express from "express";
 import cors from "cors";
 
-import { createShortUrl } from "./controller.js";
+import { createShortUrl, getUrl } from "./controller.js";
 import asyncHandler from "./utils/asyncHandler.js";
 import globalErrorHandler from "./utils/errorHandler.js";
 import { createRedisClient } from "./redis/client.js";
@@ -19,20 +19,19 @@ app.use(cors({
     maxAge: 24*60*60
 }));
 
+//BigInt → .toString() → JSON → express.json() → string → BigInt()
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-app.get("/", (req, res)=>{
-    res.send("Server is healthy");
+app.get("/health", (req, res)=>{
+    res.status(200).json("Server is healthy");
 })
 
 //Receives long urls and converts them into short urls and returns it
 app.post("/api/v1/urls", asyncHandler(createShortUrl));
 
 //upon clicking the short url the user is redirected to the original long url
-app.get("/:shortId", () => {
-
-})
+app.get("/:shortId", asyncHandler(getUrl));
 
 app.use(globalErrorHandler);
 

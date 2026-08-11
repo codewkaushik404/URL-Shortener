@@ -1,10 +1,12 @@
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
+import mysql from "mysql2";
 
-const url = process.env.DATABASE_URL;
-if (!url) {
+const write_url = process.env.WRITE_DATABASE_URL;
+if (!write_url) {
   throw new Error("Database URL not found");
 }
 
-const db = drizzle(url);
-export default db;
+const write_pool = mysql.createPool({ uri: write_url });
+export const writeDB: MySql2Database = drizzle({client: write_pool})
+
